@@ -11,7 +11,7 @@ mkdir -p "$BUILD_DIR"
 command -v xcodebuild >/dev/null || { echo 'xcodebuild is required on macOS' >&2; exit 127; }
 
 xcodebuild \
-  -project "$ROOT/ThreeOneOSFive.xcodeproj" \
+  -project "$ROOT/ThreeOneOSFive/ThreeOneOSFive.xcodeproj" \
   -scheme OGIOS \
   -configuration Release \
   -sdk iphoneos \
