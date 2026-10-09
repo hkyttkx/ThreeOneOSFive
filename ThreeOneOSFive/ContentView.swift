@@ -325,10 +325,6 @@ struct ContentView: View {
 
     private func setPatchState(for packageFilename: String, enabled: Bool) {
         if enabled { enabledPatches.insert(packageFilename) } else { enabledPatches.remove(packageFilename) }
-        switch packageFilename {
-        case "__never__": break
-        default: break
-        }
     }
 
     private func togglePatch(packageFilename: String) {
