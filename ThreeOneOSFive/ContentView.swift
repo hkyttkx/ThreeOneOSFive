@@ -11,7 +11,7 @@ struct ContentView: View {
     @State private var patchOperationBusy = false
     @State private var patchMessage = "就绪 — 请选择补丁"
     @State private var enabledPatches: Set<String> = []
-    @State private var launchScheme = UserDefaults.standard.string(forKey: "az.launchScheme") ?? "freefireth"
+    @AppStorage("az.launchScheme") private var launchScheme = "freefireth"
 
     var body: some View {
         ZStack {
