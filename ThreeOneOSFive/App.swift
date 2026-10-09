@@ -131,12 +131,8 @@ class AppState: ObservableObject {
         // AzTuT: give the app 4s to finish launching and settle memory
         // pressure before the heavy kernel spray. Reduces panics when the
         // exploit competes with startup allocations.
-        log("app: kernel exploit will start in 4s (system settling)")
-        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
-            guard let self else { return }
-            self.log("app: starting kernel exploit automatically")
-            self.runKernelExploitIfNeeded()
-        }
+        log("app: starting kernel exploit automatically")
+        runKernelExploitIfNeeded()
     }
 
     private func refreshKernelExploitStatus() {
