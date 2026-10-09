@@ -10,13 +10,8 @@ struct ContentView: View {
     @StateObject private var patchStore = PatchProjectStore()
     @State private var patchOperationBusy = false
     @State private var patchMessage = "就绪 — 请选择补丁"
-    @State private var aimDragEnabled = false
-    @State private var aimNeckEnabled = false
-    @State private var hspeitoffEnabled = false
-    @State private var hyperBalamagicaEnabled = false
-    @State private var aimBodyPackageEnabled = false
-    @State private var aimChestPackageEnabled = false
-    @State private var magicEnabled = false
+    @State private var enabledPatches: Set<String> = []
+    @State private var launchScheme = UserDefaults.standard.string(forKey: "az.launchScheme") ?? "freefireth"
 
     var body: some View {
         ZStack {
@@ -108,13 +103,23 @@ struct ContentView: View {
             }
 
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                patchCard(name: "瞄准拖拽", target: "FREE FIRE • NORMAL", package: "OGIOS File (6).3105", color: AppTheme.accent, state: $aimDragEnabled)
-                patchCard(name: "瞄准颈部", target: "FREE FIRE • NORMAL", package: "OGIOS File (7).3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
-                patchCard(name: "天线", target: "FREE FIRE • NORMAL", package: "OGIOS File (8).3105", color: AppTheme.secondaryAccent, state: $hspeitoffEnabled)
-                patchCard(name: "144 帧", target: "FREE FIRE • NORMAL", package: "OGIOS File (10).3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
-                patchCard(name: "瞄准身体", target: "FREE FIRE • NORMAL", package: "OGIOS File (12).3105", color: AppTheme.accent, state: $aimBodyPackageEnabled)
-                patchCard(name: "瞄准胸部", target: "FREE FIRE • NORMAL", package: "OGIOS File (2).3105", color: AppTheme.secondaryAccent, state: $aimChestPackageEnabled)
-                patchCard(name: "魔法", target: "FREE FIRE • NORMAL", package: "OGIOS File (14).3105", color: AppTheme.accent, state: $magicEnabled)
+                if patchStore.items.isEmpty {
+                    Text("暂无补丁包 — 请到「补丁」页导入")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.5))
+                        .frame(maxWidth: .infinity, minHeight: 90)
+                        .gridCellColumns(2)
+                } else {
+                    ForEach(patchStore.items) { item in
+                        patchCard(
+                            name: friendlyPatchName(for: item),
+                            target: patchTargetLabel(for: item),
+                            package: item.packageURL.lastPathComponent,
+                            color: enabledPatches.contains(item.packageURL.lastPathComponent) ? AppTheme.accent : AppTheme.secondaryAccent,
+                            isEnabled: enabledPatches.contains(item.packageURL.lastPathComponent)
+                        )
+                    }
+                }
             }
 
             HStack(spacing: 8) {
@@ -131,18 +136,45 @@ struct ContentView: View {
         }
     }
 
-    private func patchCard(name: String, target: String, package: String, color: Color, state: Binding<Bool>) -> some View {
-        PatchOptionCard(name: name, target: target, color: color, isEnabled: state, isBusy: patchOperationBusy) {
-            togglePatch(packageFilename: package, state: state)
+    private func patchCard(name: String, target: String, package: String, color: Color, isEnabled: Bool) -> some View {
+        PatchOptionCard(name: name, target: target, color: color, isEnabled: isEnabled, isBusy: patchOperationBusy) {
+            togglePatch(packageFilename: package)
         }
+    }
+
+    /// 内置补丁包的友好名称（包内元数据加密，无法直接读取）
+    private func friendlyPatchName(for item: PatchLibraryItem) -> String {
+        let base = item.packageURL.deletingPathExtension().lastPathComponent
+        let builtin: [String: String] = [
+            "OGIOS File (6)": "瞄准拖拽",
+            "OGIOS File (7)": "瞄准颈部",
+            "OGIOS File (8)": "天线",
+            "OGIOS File (10)": "144 帧",
+            "OGIOS File (12)": "瞄准身体",
+            "OGIOS File (2)": "瞄准胸部",
+            "OGIOS File (14)": "魔法",
+        ]
+        if let friendly = builtin[base] { return friendly }
+        return item.displayName
+    }
+
+    /// 目标标签：优先用补丁项目名，其次用通用标签
+    private func patchTargetLabel(for item: PatchLibraryItem) -> String {
+        if let project = item.project, !project.name.isEmpty {
+            return project.name.uppercased()
+        }
+        if let bundle = item.project?.bundleIdentifiers.first, !bundle.isEmpty {
+            return bundle
+        }
+        return item.isLocked ? "需要密码解锁" : "通用补丁"
     }
 
     private var gameLaunchPanel: some View {
         VStack(alignment: .leading, spacing: 12) {
             panelTitle("启动游戏", icon: "arrow.up.forward.app.fill")
             HStack(spacing: 12) {
-                launchButton(title: "FF 普通版", subtitle: "Free Fire 普通版", color: AppTheme.accent, scheme: "freefireth")
-                lockedLaunchButton(title: "FF 增强版", subtitle: "已锁定 • 敬请期待", color: AppTheme.secondaryAccent)
+                launchButton(title: "启动游戏", subtitle: "打开已配置的目标应用", color: AppTheme.accent, scheme: launchScheme)
+                lockedLaunchButton(title: "更多游戏", subtitle: "在「设置」中配置目标应用", color: AppTheme.secondaryAccent)
             }
             Button {
                 showCleaner = true
@@ -272,13 +304,12 @@ struct ContentView: View {
     }
 
     private func syncPatchStates() {
-        aimDragEnabled = isPatchActive("OGIOS File (6).3105")
-        aimNeckEnabled = isPatchActive("OGIOS File (7).3105")
-        hspeitoffEnabled = isPatchActive("OGIOS File (8).3105")
-        hyperBalamagicaEnabled = isPatchActive("OGIOS File (10).3105")
-        aimBodyPackageEnabled = isPatchActive("OGIOS File (12).3105")
-        aimChestPackageEnabled = isPatchActive("OGIOS File (2).3105")
-        magicEnabled = isPatchActive("OGIOS File (14).3105")
+        patchStore.reload()
+        var active = Set<String>()
+        for item in patchStore.items where isPatchActive(item.packageURL.lastPathComponent) {
+            active.insert(item.packageURL.lastPathComponent)
+        }
+        enabledPatches = active
     }
 
     private func isPatchActive(_ packageFilename: String) -> Bool {
@@ -293,19 +324,14 @@ struct ContentView: View {
     }
 
     private func setPatchState(for packageFilename: String, enabled: Bool) {
+        if enabled { enabledPatches.insert(packageFilename) } else { enabledPatches.remove(packageFilename) }
         switch packageFilename {
-        case "OGIOS File (6).3105": aimDragEnabled = enabled
-        case "OGIOS File (7).3105": aimNeckEnabled = enabled
-        case "OGIOS File (8).3105": hspeitoffEnabled = enabled
-        case "OGIOS File (10).3105": hyperBalamagicaEnabled = enabled
-        case "OGIOS File (12).3105": aimBodyPackageEnabled = enabled
-        case "OGIOS File (2).3105": aimChestPackageEnabled = enabled
-        case "OGIOS File (14).3105": magicEnabled = enabled
+        case "__never__": break
         default: break
         }
     }
 
-    private func togglePatch(packageFilename: String, state: Binding<Bool>) {
+    private func togglePatch(packageFilename: String) {
         guard !patchOperationBusy else { return }
         guard let item = patchStore.items.first(where: { $0.packageURL.lastPathComponent.caseInsensitiveCompare(packageFilename) == .orderedSame }) else {
             patchMessage = "错误 — 找不到补丁包"
@@ -313,7 +339,7 @@ struct ContentView: View {
             return
         }
 
-        let wasEnabled = state.wrappedValue
+        let wasEnabled = enabledPatches.contains(packageFilename)
         patchOperationBusy = true
         patchMessage = "PROCESSING — \(packageFilename)"
         let project = item.project
@@ -381,7 +407,7 @@ private struct PatchOptionCard: View {
     let name: String
     let target: String
     let color: Color
-    @Binding var isEnabled: Bool
+    let isEnabled: Bool
     let isBusy: Bool
     let action: () -> Void
 
