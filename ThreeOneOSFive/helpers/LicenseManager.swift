@@ -4,7 +4,7 @@ import Security
 
 @MainActor
 final class LicenseManager: ObservableObject {
-    static let accessKey = "OGIOS"
+    static let accessKey = "AzTuT"
 
     @Published private(set) var expirationDate: Date?
     @Published private(set) var isActive = false
@@ -13,7 +13,7 @@ final class LicenseManager: ObservableObject {
     @Published private(set) var contactOwner: String?
     @Published var rememberKey = true
 
-    private let service = "com.OGIOS.external-ios.activation"
+    private let service = "com.AzTuT.external-ios.activation"
     private let keyAccount = "license-key"
     private var lastAttemptAt: Date?
 
@@ -25,31 +25,31 @@ final class LicenseManager: ObservableObject {
 
     func beginLaunchSession() {
         isActive = hasRememberedKey
-        message = isActive ? "Ready to use" : "Key required — enter your access key"
+        message = isActive ? "已激活，可以直接使用" : "需要激活码 — 请输入访问密钥"
     }
 
     func activate(key: String) {
         let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, !isBusy else { return }
         if let lastAttemptAt, Date().timeIntervalSince(lastAttemptAt) < 1 {
-            message = "Please wait a moment before trying again"
+            message = "请稍候再试"
             return
         }
         lastAttemptAt = Date()
         isBusy = true
-        message = "Checking access key…"
+        message = "正在验证激活码…"
 
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
             self.isBusy = false
             guard trimmed == Self.accessKey else {
                 self.isActive = false
-                self.message = "Invalid access key"
+                self.message = "激活码无效"
                 return
             }
             if self.rememberKey { self.save(Self.accessKey, for: self.keyAccount) }
             self.isActive = true
-            self.message = "Activated successfully"
+            self.message = "激活成功"
         }
     }
 
@@ -57,13 +57,13 @@ final class LicenseManager: ObservableObject {
 
     func refresh() {
         isActive = hasRememberedKey
-        message = isActive ? "Ready to use" : "Key required — enter your access key"
+        message = isActive ? "已激活，可以直接使用" : "需要激活码 — 请输入访问密钥"
     }
 
     func deactivate() {
         delete(keyAccount)
         isActive = false
-        message = "Activation removed from this device"
+        message = "已从此设备移除激活"
     }
 
     private func string(for account: String) -> String? {
