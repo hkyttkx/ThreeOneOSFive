@@ -19,7 +19,7 @@ struct LicenseActivationView: View {
                         VStack(spacing: 0) {
                             Spacer(minLength: 42)
 
-                            Text("OGIOS")
+                            Text("AzIOS")
                                 .font(.system(size: 30, weight: .black, design: .rounded))
                                 .tracking(1.4)
                                 .foregroundStyle(.white)
@@ -29,7 +29,7 @@ struct LicenseActivationView: View {
                                 .foregroundStyle(.white.opacity(0.55))
                                 .padding(.top, 5)
 
-                            Text("Package: OGIOS")
+                            Text("补丁包：AzIOS")
                                 .font(.system(size: 12, weight: .bold, design: .rounded))
                                 .foregroundStyle(AppTheme.secondaryAccent.opacity(0.9))
                                 .padding(.top, 8)
@@ -45,7 +45,7 @@ struct LicenseActivationView: View {
                                     Spacer()
                                 }
 
-                                Text("Enter your OGIOS license key to continue")
+                                Text("请输入 AzIOS 激活码以继续")
                                     .font(.system(size: 13, weight: .medium, design: .rounded))
                                     .foregroundStyle(.white.opacity(0.68))
                                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -72,7 +72,7 @@ struct LicenseActivationView: View {
                                 Button(action: activate) {
                                     HStack(spacing: 9) {
                                         Image(systemName: manager.isBusy ? "hourglass" : "checkmark.shield.fill")
-                                        Text(manager.isBusy ? "VERIFYING…" : "VERIFY AND CONTINUE")
+                                        Text(manager.isBusy ? "正在验证…" : "验证并继续")
                                     }
                                     .font(.system(size: 14, weight: .black, design: .rounded))
                                     .foregroundStyle(.white)
