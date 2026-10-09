@@ -37,6 +37,12 @@ struct SettingsView: View {
                     LabeledContent(language.text("settings.ios_version"), value: "\(AppInfo.osVersion) (\(AppInfo.osBuild))")
                 }
 
+                Section("工具箱") {
+                    NavigationLink { AppManagerView() } label: { Label("应用管理", systemImage: "square.grid.2x2") }
+                    NavigationLink { DeviceSpoofView() } label: { Label("设备伪装（可还原）", systemImage: "iphone.gen3") }
+                    NavigationLink { ProcessListView() } label: { Label("进程管理", systemImage: "list.bullet.rectangle") }
+                }
+
                 Section("启动游戏") {
                     HStack {
                         Text("目标应用 Scheme")
