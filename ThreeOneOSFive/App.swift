@@ -128,8 +128,15 @@ class AppState: ObservableObject {
               !exploitStatus.isFailed,
               !autoRunAttempted else { return }
         autoRunAttempted = true
-        log("app: starting kernel exploit automatically")
-        runKernelExploitIfNeeded()
+        // AzTuT: give the app 4s to finish launching and settle memory
+        // pressure before the heavy kernel spray. Reduces panics when the
+        // exploit competes with startup allocations.
+        log("app: kernel exploit will start in 4s (system settling)")
+        Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 4_000_000_000)
+            log("app: starting kernel exploit automatically")
+            runKernelExploitIfNeeded()
+        }
     }
 
     private func refreshKernelExploitStatus() {
