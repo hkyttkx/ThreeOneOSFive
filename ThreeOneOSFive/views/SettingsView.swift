@@ -5,6 +5,7 @@ struct SettingsView: View {
     @Environment(\.appLanguage) private var language
     @EnvironmentObject private var appState: AppState
     @AppStorage(AppLanguage.storageKey) private var languageCode = AppLanguage.english.rawValue
+    @AppStorage("az.launchScheme") private var launchScheme = "freefireth"
 
     var body: some View {
         NavigationStack {
@@ -34,6 +35,29 @@ struct SettingsView: View {
                 Section(language.text("common.device")) {
                     LabeledContent(language.text("dashboard.hardware_model"), value: AppInfo.displayMachineName)
                     LabeledContent(language.text("settings.ios_version"), value: "\(AppInfo.osVersion) (\(AppInfo.osBuild))")
+                }
+
+                Section("启动游戏") {
+                    HStack {
+                        Text("目标应用 Scheme")
+                        Spacer()
+                        TextField("例如 freefireth", text: $launchScheme)
+                            .multilineTextAlignment(.trailing)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                    }
+                    HStack(spacing: 8) {
+                        ForEach(["freefireth", "freefire", "com.tencent.ig", "com.tencent.tmgp.pubgmhd"], id: \.self) { item in
+                            Button(item) { launchScheme = item }
+                                .font(.caption2)
+                                .padding(.horizontal, 8).padding(.vertical, 4)
+                                .background(AppTheme.accent.opacity(0.18), in: Capsule())
+                                .foregroundStyle(AppTheme.accent)
+                        }
+                    }
+                    Text("主页点「启动游戏」时会打开这个 Scheme")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
 
                 Section {
