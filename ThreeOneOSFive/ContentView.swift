@@ -9,7 +9,7 @@ struct ContentView: View {
     @State private var showCleaner = false
     @StateObject private var patchStore = PatchProjectStore()
     @State private var patchOperationBusy = false
-    @State private var patchMessage = "READY — SELECT A PATCH"
+    @State private var patchMessage = "就绪 — 请选择补丁"
     @State private var aimDragEnabled = false
     @State private var aimNeckEnabled = false
     @State private var hspeitoffEnabled = false
@@ -51,18 +51,18 @@ struct ContentView: View {
         .onChange(of: scenePhase) { phase in
             guard phase == .active, !patchOperationBusy else { return }
             syncPatchStates()
-            patchMessage = "READY — SELECT A PATCH"
+            patchMessage = "就绪 — 请选择补丁"
         }
     }
 
     private var brandHeader: some View {
         HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 3) {
-                Text("OGIOS")
+                Text("Az")
                     .font(.system(size: 25, weight: .black, design: .rounded))
                     .tracking(3)
                     .foregroundStyle(.white)
-                Text("PATCH CONTROL CENTER")
+                Text("补丁控制中心")
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .tracking(1.7)
                     .foregroundStyle(AppTheme.accent)
@@ -81,16 +81,16 @@ struct ContentView: View {
                     .overlay(Circle().stroke(AppTheme.accent.opacity(0.42), lineWidth: 1))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Open settings")
+            .accessibilityLabel("打开设置")
         }
     }
 
     private var devicePanel: some View {
         VStack(spacing: 0) {
-            panelTitle("DEVICE STATUS", icon: "shield.lefthalf.filled")
+            panelTitle("设备状态", icon: "shield.lefthalf.filled")
             statusRow(icon: "apple.logo", title: "iOS", value: AppInfo.osVersion, color: AppTheme.secondaryAccent)
-            statusRow(icon: "iphone", title: "Device", value: AppInfo.displayMachineName, color: AppTheme.secondaryAccent)
-            statusRow(icon: "checkmark.seal.fill", title: "Support", value: appState.isSupported ? "SUPPORTED" : "UNSUPPORTED", color: appState.isSupported ? .green : .red)
+            statusRow(icon: "iphone", title: "设备", value: AppInfo.displayMachineName, color: AppTheme.secondaryAccent)
+            statusRow(icon: "checkmark.seal.fill", title: "支持", value: appState.isSupported ? "已支持" : "不支持", color: appState.isSupported ? .green : .red)
         }
         .padding(16)
         .background(Color.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -100,26 +100,26 @@ struct ContentView: View {
     private var patchOptions: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                panelTitle("PATCH OPTIONS", icon: "bolt.fill")
+                panelTitle("补丁选项", icon: "bolt.fill")
                 Spacer()
-                Text("SELECT TO ENABLE")
+                Text("选择以启用")
                     .font(.system(size: 9, weight: .bold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.45))
             }
 
             LazyVGrid(columns: [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)], spacing: 12) {
-                patchCard(name: "Aim Drag", target: "FREE FIRE • NORMAL", package: "OGIOS File (6).3105", color: AppTheme.accent, state: $aimDragEnabled)
-                patchCard(name: "Aim Neck", target: "FREE FIRE • NORMAL", package: "OGIOS File (7).3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
-                patchCard(name: "Antenna", target: "FREE FIRE • NORMAL", package: "OGIOS File (8).3105", color: AppTheme.secondaryAccent, state: $hspeitoffEnabled)
-                patchCard(name: "144 FPS", target: "FREE FIRE • NORMAL", package: "OGIOS File (10).3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
-                patchCard(name: "Aim Body", target: "FREE FIRE • NORMAL", package: "OGIOS File (12).3105", color: AppTheme.accent, state: $aimBodyPackageEnabled)
-                patchCard(name: "Aim Chest", target: "FREE FIRE • NORMAL", package: "OGIOS File (2).3105", color: AppTheme.secondaryAccent, state: $aimChestPackageEnabled)
-                patchCard(name: "Magic", target: "FREE FIRE • NORMAL", package: "OGIOS File (14).3105", color: AppTheme.accent, state: $magicEnabled)
+                patchCard(name: "瞄准拖拽", target: "FREE FIRE • NORMAL", package: "OGIOS File (6).3105", color: AppTheme.accent, state: $aimDragEnabled)
+                patchCard(name: "瞄准颈部", target: "FREE FIRE • NORMAL", package: "OGIOS File (7).3105", color: AppTheme.secondaryAccent, state: $aimNeckEnabled)
+                patchCard(name: "天线", target: "FREE FIRE • NORMAL", package: "OGIOS File (8).3105", color: AppTheme.secondaryAccent, state: $hspeitoffEnabled)
+                patchCard(name: "144 帧", target: "FREE FIRE • NORMAL", package: "OGIOS File (10).3105", color: AppTheme.secondaryAccent, state: $hyperBalamagicaEnabled)
+                patchCard(name: "瞄准身体", target: "FREE FIRE • NORMAL", package: "OGIOS File (12).3105", color: AppTheme.accent, state: $aimBodyPackageEnabled)
+                patchCard(name: "瞄准胸部", target: "FREE FIRE • NORMAL", package: "OGIOS File (2).3105", color: AppTheme.secondaryAccent, state: $aimChestPackageEnabled)
+                patchCard(name: "魔法", target: "FREE FIRE • NORMAL", package: "OGIOS File (14).3105", color: AppTheme.accent, state: $magicEnabled)
             }
 
             HStack(spacing: 8) {
-                Circle().fill(patchMessage.localizedCaseInsensitiveContains("successful") ? .green : AppTheme.accent).frame(width: 7, height: 7)
-                Text(patchOperationBusy ? "PROCESSING PATCH…" : patchMessage)
+                Circle().fill((patchMessage.contains("成功") || patchMessage.localizedCaseInsensitiveContains("successful")) ? .green : AppTheme.accent).frame(width: 7, height: 7)
+                Text(patchOperationBusy ? "正在处理补丁…" : patchMessage)
                     .font(.system(size: 10, weight: .bold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.72))
                     .lineLimit(2)
@@ -139,15 +139,15 @@ struct ContentView: View {
 
     private var gameLaunchPanel: some View {
         VStack(alignment: .leading, spacing: 12) {
-            panelTitle("LAUNCH GAME", icon: "arrow.up.forward.app.fill")
+            panelTitle("启动游戏", icon: "arrow.up.forward.app.fill")
             HStack(spacing: 12) {
-                launchButton(title: "FF NORMAL", subtitle: "Free Fire Normal", color: AppTheme.accent, scheme: "freefireth")
-                lockedLaunchButton(title: "FF MAX", subtitle: "Locked • Coming Soon", color: AppTheme.secondaryAccent)
+                launchButton(title: "FF 普通版", subtitle: "Free Fire 普通版", color: AppTheme.accent, scheme: "freefireth")
+                lockedLaunchButton(title: "FF 增强版", subtitle: "已锁定 • 敬请期待", color: AppTheme.secondaryAccent)
             }
             Button {
                 showCleaner = true
             } label: {
-                Label("Clean Cache & Temp", systemImage: "trash.slash.fill")
+                Label("清理缓存与临时文件", systemImage: "trash.slash.fill")
                     .font(.system(size: 13, weight: .black, design: .rounded))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 52)
@@ -155,7 +155,7 @@ struct ContentView: View {
                     .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(AppTheme.accent.opacity(0.52), lineWidth: 1))
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("Open cache and temporary files cleaner")
+            .accessibilityLabel("打开缓存与临时文件清理")
         }
     }
 
@@ -197,18 +197,18 @@ struct ContentView: View {
         .background(Color.black.opacity(0.28), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(color.opacity(0.24), lineWidth: 1))
         .opacity(0.72)
-        .accessibilityLabel("FF MAX locked, coming soon")
+        .accessibilityLabel("FF MAX 已锁定，敬请期待")
     }
 
     private var footerStatus: some View {
         HStack(spacing: 10) {
             Circle().fill(.green).frame(width: 9, height: 9).shadow(color: .green, radius: 6)
-            Text("SISTEMA PRONTO")
+            Text("系统就绪")
                 .font(.system(size: 10, weight: .black, design: .rounded))
                 .tracking(1.2)
                 .foregroundStyle(.white.opacity(0.72))
             Spacer()
-            Text("OGIOS • PRONTO")
+            Text("Az • 就绪")
                 .font(.system(size: 9, weight: .bold, design: .rounded))
                 .foregroundStyle(AppTheme.accent.opacity(0.8))
         }
@@ -220,17 +220,17 @@ struct ContentView: View {
 
     private var developerCredits: some View {
         VStack(spacing: 10) {
-            Text("Developed by OGIOS")
+            Text("Developed by Az")
                 .font(.system(size: 11, weight: .bold, design: .rounded))
                 .foregroundStyle(.white.opacity(0.72))
                 .multilineTextAlignment(.center)
 
-            Text("Our Telegram channels")
+            Text("我们的 Telegram 频道")
                 .font(.system(size: 10, weight: .semibold, design: .rounded))
                 .foregroundStyle(AppTheme.secondaryAccent.opacity(0.85))
 
             HStack(spacing: 10) {
-                channelButton(title: "OGIOS Telegram", url: "https://t.me/ogios1")
+                channelButton(title: "Az Telegram", url: "https://t.me/ogios1")
             }
         }
         .frame(maxWidth: .infinity)
@@ -308,7 +308,7 @@ struct ContentView: View {
     private func togglePatch(packageFilename: String, state: Binding<Bool>) {
         guard !patchOperationBusy else { return }
         guard let item = patchStore.items.first(where: { $0.packageURL.lastPathComponent.caseInsensitiveCompare(packageFilename) == .orderedSame }) else {
-            patchMessage = "ERROR — PACKAGE NOT FOUND"
+            patchMessage = "错误 — 找不到补丁包"
             log("patch: package not found: \(packageFilename)")
             return
         }
@@ -324,10 +324,10 @@ struct ContentView: View {
             do {
                 if wasEnabled {
                     guard let receipt = DevicePatchService.latestReceipt(projectID: projectID) else {
-                        result = .unavailable("NO ACTIVE RECEIPT — NOTHING TO RESTORE")
+                        result = .unavailable("无启用记录 — 无需恢复")
                         DispatchQueue.main.async {
                             self.setPatchState(for: packageFilename, enabled: false)
-                            self.patchMessage = "OFF — NO ACTIVE PATCH FOUND"
+                            self.patchMessage = "未启用 — 无活动补丁"
                             self.patchOperationBusy = false
                         }
                         return
@@ -336,10 +336,10 @@ struct ContentView: View {
                     result = .restored
                 } else {
                     guard let project else {
-                        result = .unavailable("PASSWORD REQUIRED — UNLOCK PACKAGE")
+                        result = .unavailable("需要密码 — 解锁补丁包")
                         DispatchQueue.main.async {
                             self.patchStore.requestUnlock(for: item)
-                            self.patchMessage = "PASSWORD REQUIRED — ENTER PACKAGE PASSWORD"
+                            self.patchMessage = "需要密码 — 请输入补丁包密码"
                             self.patchOperationBusy = false
                         }
                         return
@@ -359,7 +359,7 @@ struct ContentView: View {
                     PatchAudioFeedback.bypassActivated()
                 case .restored:
                     self.setPatchState(for: packageFilename, enabled: false)
-                    self.patchMessage = "Restore Successful — \(packageFilename)"
+                    self.patchMessage = "恢复成功 — \(packageFilename)"
                     PatchAudioFeedback.originalRestored()
                 case .unavailable(let message):
                     self.patchMessage = message
@@ -406,7 +406,7 @@ private struct PatchOptionCard: View {
                     .foregroundStyle(color)
                 HStack(spacing: 7) {
                     Circle().fill(isEnabled ? Color.green : Color.white.opacity(0.25)).frame(width: 8, height: 8)
-                    Text(isEnabled ? "PATCH ACTIVE" : "ACTIVATE PATCH")
+                    Text(isEnabled ? "已启用" : "启用补丁")
                         .font(.system(size: 9, weight: .black, design: .rounded))
                         .tracking(0.8)
                         .foregroundStyle(.white.opacity(0.65))
@@ -457,7 +457,7 @@ private struct PatchUnlockPrompt: View {
         NavigationStack {
             Form {
                 Section {
-                    SecureField("Package password", text: $password)
+                    SecureField("补丁包密码", text: $password)
                         .textContentType(.password)
                         .submitLabel(.done)
                         .onSubmit(unlock)
@@ -468,17 +468,17 @@ private struct PatchUnlockPrompt: View {
                             .foregroundStyle(.red)
                     }
                 } footer: {
-                    Text("Enter the password once to unlock this OGIOS package on this device.")
+                    Text("输入一次密码即可在本设备解锁此补丁包。")
                 }
             }
             .navigationTitle("Unlock package")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
+                    Button("取消") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Unlock", action: unlock)
+                    Button("解锁", action: unlock)
                         .disabled(password.isEmpty || store.isBusy)
                 }
             }
