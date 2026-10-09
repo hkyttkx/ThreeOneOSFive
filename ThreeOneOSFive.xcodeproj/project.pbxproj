@@ -91,7 +91,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3105Z100 /* ToolboxFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolboxFeatures.swift; sourceTree = "<group>"; };
+		3105Z100 /* ToolboxFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ToolboxFeatures.swift; path = ThreeOneOSFive/views/ToolboxFeatures.swift; sourceTree = SOURCE_ROOT; };
 		3105A010 /* OGIOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "OGIOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3105A020 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		3105A021 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
