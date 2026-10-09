@@ -26,6 +26,9 @@ struct PatchPasswordRequest: Identifiable {
 }
 
 enum PatchProjectLibrary {
+    /// AzTuT: 同时支持 .OGIOS 和 .3105 两种补丁包扩展名
+    static let supportedExtensions: Set<String> = ["ogios", "3105"]
+
     static func packageRootURL(fileManager: FileManager = .default) throws -> URL {
         let base = try fileManager.url(
             for: .applicationSupportDirectory,
@@ -56,8 +59,12 @@ enum PatchProjectLibrary {
         // Xcode may flatten folder references into the app bundle. Resolve both
         // the intended Patches subdirectory and the flattened bundle root so
         // standalone builds remain self-contained across packaging layouts.
-        let nestedURLs = bundle.urls(forResourcesWithExtension: "OGIOS", subdirectory: "Patches") ?? []
-        let flattenedURLs = bundle.urls(forResourcesWithExtension: "OGIOS", subdirectory: nil) ?? []
+        var nestedURLs: [URL] = []
+        var flattenedURLs: [URL] = []
+        for ext in ["OGIOS", "3105"] {
+            nestedURLs += bundle.urls(forResourcesWithExtension: ext, subdirectory: "Patches") ?? []
+            flattenedURLs += bundle.urls(forResourcesWithExtension: ext, subdirectory: nil) ?? []
+        }
         var seen = Set<String>()
         let bundledURLs = (nestedURLs + flattenedURLs).filter { seen.insert($0.standardizedFileURL.path).inserted }
 
@@ -83,7 +90,7 @@ enum PatchProjectLibrary {
               ) else { return [] }
 
         var byID: [UUID: PatchLibraryItem] = [:]
-        for url in urls where url.pathExtension.lowercased() == "OGIOS" {
+        for url in urls where Self.supportedExtensions.contains(url.pathExtension.lowercased()) {
             do {
                 let data = try readPackage(at: url)
                 let summary = try PatchPackageCodec.inspect(data)
