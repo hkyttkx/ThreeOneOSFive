@@ -132,10 +132,10 @@ class AppState: ObservableObject {
         // pressure before the heavy kernel spray. Reduces panics when the
         // exploit competes with startup allocations.
         log("app: kernel exploit will start in 4s (system settling)")
-        Task { @MainActor in
-            try? await Task.sleep(nanoseconds: 4_000_000_000)
-            log("app: starting kernel exploit automatically")
-            runKernelExploitIfNeeded()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { [weak self] in
+            guard let self else { return }
+            self.log("app: starting kernel exploit automatically")
+            self.runKernelExploitIfNeeded()
         }
     }
 
